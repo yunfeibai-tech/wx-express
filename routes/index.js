@@ -60,11 +60,11 @@ router.get('/userList',function (req,resUser,next) {
             request('https://api.weixin.qq.com/cgi-bin/user/get?access_token='+token, function(err, respond, data){
                 JSON.parse(data).data.openid.forEach(function (obj,index) {
                     getUserInfo(obj).then(function (userInfo) {
+                        console.log(userInfo)
                         dataList.userList.push(userInfo)
                     })
                 })
                 setTimeout(function () {
-                    console.log('--------------')
                     resUser.status(200).json(dataList)
                 },200)
 

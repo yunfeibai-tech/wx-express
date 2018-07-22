@@ -69,7 +69,7 @@ function getToken(){
                 console.log(result);
                 fs.writeFileSync("test.txt", JSON.stringify(result), function(err) {
                     if(err) {
-                        return console.log(err);
+                        return console.log('111');
                     }
                     console.log("The file was saved!");
                 });
