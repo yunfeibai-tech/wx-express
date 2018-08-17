@@ -66,7 +66,6 @@ function getToken(){
             request('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='+appID+'&secret='+appSecret, function(err, res, data){
                 var result = JSON.parse(data);
                 result.timeout = Date.now() + 7000000;
-                console.log(result);
                 fs.writeFileSync("test.txt", JSON.stringify(result), function(err) {
                     if(err) {
                         return console.log('111');

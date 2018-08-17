@@ -23,12 +23,10 @@ router.get('/', function(req, res, next) {
 });
 router.post('/',function (req,response,next) {
     var postdata = "";
-
     req.addListener("data",function(postchunk){
         postdata += postchunk;
 
     });
-
     //获取到了POST数据
     req.addListener("end",function() {
         var parseString = require("xml2js").parseString;
@@ -36,14 +34,13 @@ router.post('/',function (req,response,next) {
             if (!err) {
                 var res;
                 getUserInfo(result.xml.FromUserName[0])
-                    .then(function(userInfo){
-                        //获得用户信息，合并到消息中
-                        result.user = userInfo;
-                        //将消息通过websocket广播
-                        res = replyText(result,'你好!'+result.user.nickname);
-                        response.end(res)
-                    })
-
+                .then(function(userInfo){
+                    //获得用户信息，合并到消息中
+                    result.user = userInfo;
+                    //将消息通过websocket广播
+                    res = replyText(result,'你好!'+result.user.nickname);
+                    response.end(res)
+                })
             }
         });
     })
@@ -86,11 +83,14 @@ router.get('/userList',function (req,resUser,next) {
                     "qr_scene": 98765,
                     "qr_scene_str": ""
                 };
-                dataList.userList.push(params);
-                resUser.status(200).json(dataList)
+                // dataList.userList.push(params);
+                // resUser.status(200).json(dataList)
+
 
 
             });
+            console.log(dataList)
+            resUser.status(200).json(dataList)
         });
     }).catch(function(err){
         console.log(err);
