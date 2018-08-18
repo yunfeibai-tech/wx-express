@@ -55,14 +55,23 @@ router.get('/userList',function (req,resUser,next) {
         var token = res;
         return new Promise(function(resolve, reject){
             request('https://api.weixin.qq.com/cgi-bin/user/get?access_token='+token, function(err, respond, data){
-                var openid =[];
+                var openid =[],hasList= false;
                 if(JSON.parse(data).data){
                      openid =  JSON.parse(data).data.openid;
                 }
                 openid.forEach(function (obj,index) {
                     getUserInfo(obj).then(function (userInfo) {
-                        dataList.userList.push(userInfo)
-                    })
+
+                        if(index == (openid.length-1)){
+                            console.log(openid.length);
+                            dataList.userList.push(userInfo);
+                            setTimeout(function () {
+                                resUser.status(200).json(dataList)
+                            },200)
+                        }else {
+                            dataList.userList.push(userInfo);
+                        }
+                    });
                 });
                 //todo
                 var params ={
@@ -84,13 +93,11 @@ router.get('/userList',function (req,resUser,next) {
                     "qr_scene_str": ""
                 };
                 // dataList.userList.push(params);
-                // resUser.status(200).json(dataList)
+
 
 
 
             });
-            console.log(dataList)
-            resUser.status(200).json(dataList)
         });
     }).catch(function(err){
         console.log(err);
