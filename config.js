@@ -6,7 +6,7 @@
 const dbCofing ={
     host:'106.12.2.80',
     port:'3306',
-    user:'',
+    user:'root',
     password:'123qwe!@#$'
 }
 
