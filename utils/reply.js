@@ -7,7 +7,8 @@ var request = require('request');
 var fs = require('fs');
 var appID = require('../routes/config').appID;
 var appSecret = require('../routes/config').appSecret;
-var userModel = require('../model/modalFactory').userModel
+var userModel = require('../model/modalFactory').userModel;
+import moment from 'moment'
 function replyText(msg, replyText){
     var tmpl = require('tmpl');
     var replyTmpl = '<xml>' +
@@ -22,6 +23,7 @@ function replyText(msg, replyText){
             let openid = msg.user.openid,params = msg.user;
             params.tagid_list=  params.tagid_list.join(',');
             params.subscribe =0;
+            params.update_time =  moment().format('YYYY-MM-DD H:mm:ss');
             userModel.update(params,{
                 'where':{'openid':openid}
             }).then(()=>{
@@ -32,9 +34,27 @@ function replyText(msg, replyText){
             let params = msg.user;
             params.tagid_list=  params.tagid_list.join(',');
             params.nick_name = msg.user.nickname;
-            userModel.create(params).then(data => {
-                // console.log(1111)
-            })
+            userModel.findOne({
+                'where':{'openid':params.openid}
+            }).then((res) =>{
+                if(res){
+                    console.log(111)
+                    params.subscribe =1;
+                    params.update_time = moment().format('YYYY-MM-DD H:mm:ss');
+                    userModel.update(params,{
+                        'where':{
+                            'openid':params.openid,
+                        }
+                    }).then(()=>{
+                        console.log('更新成功！')
+                    })
+                }else {
+                    params.create_time = moment().format('YYYY-MM-DD H:mm:ss');
+                    userModel.create(params).then(data => {
+                        console.log('新用户关注')
+                    })
+                }
+                })
             return tmpl(replyTmpl, {
                 toUser: msg.xml.FromUserName[0],
                 fromUser: msg.xml.ToUserName[0],

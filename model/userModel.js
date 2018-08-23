@@ -51,7 +51,7 @@ exports.user = {
         type:Sequelize.INTEGER,
         field:'subscribe_time'
     },
-    'createTime': {
+    'create_time': {
         type: Sequelize.DATE, // 字段类型
         field: 'create_time',
     },

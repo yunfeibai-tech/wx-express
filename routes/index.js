@@ -48,19 +48,6 @@ router.post('/',function (req,response,next) {
 router.post('/changeKeyWord',function (req,res,next) {
     res.status(200).send('111');
 });
-//获取用户列表
-router.get('/userList',function (req,resUser,next) {
-    return getToken(config.appID, config.appSecret).then(function(res){
-        var token = res;
-        return new Promise(function(resolve, reject){
-            userModel.findAll().then(userList =>{
-                resUser.status(200).json(userList)
-            })
-        });
-    }).catch(function(err){
-        console.log(err);
-    });
-})
 //token 接口
 router.post('/login',function (req,res,next) {
     var params ={
