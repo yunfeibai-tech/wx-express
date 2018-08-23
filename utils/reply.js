@@ -7,6 +7,7 @@ var request = require('request');
 var fs = require('fs');
 var appID = require('../routes/config').appID;
 var appSecret = require('../routes/config').appSecret;
+var userModel = require('../model/modalFactory').userModel
 function replyText(msg, replyText){
     var tmpl = require('tmpl');
     var replyTmpl = '<xml>' +
@@ -17,7 +18,23 @@ function replyText(msg, replyText){
         '<Content><![CDATA[{content}]]></Content>' +
         '</xml>';
     if(msg.xml.MsgType[0] !== 'text'){
+        if(msg.xml.MsgType[0] == 'event' && msg.xml.Event[0] =='unsubscribe'){
+            let openid = msg.user.openid,params = msg.user;
+            params.tagid_list=  params.tagid_list.join(',');
+            params.subscribe =0;
+            userModel.update(params,{
+                'where':{'openid':openid}
+            }).then(()=>{
+                console.log('更新成功！')
+            })
+        }
         if(msg.xml.MsgType[0] == 'event' && msg.xml.Event[0] == 'subscribe'){
+            let params = msg.user;
+            params.tagid_list=  params.tagid_list.join(',');
+            params.nick_name = msg.user.nickname;
+            userModel.create(params).then(data => {
+                // console.log(1111)
+            })
             return tmpl(replyTmpl, {
                 toUser: msg.xml.FromUserName[0],
                 fromUser: msg.xml.ToUserName[0],
@@ -34,26 +51,26 @@ function replyText(msg, replyText){
                 content: replyText+'这是图片！'
             });
         }
-    }else {
-        if(msg.xml.Content[0] == "你好"){
-            return tmpl(replyTmpl, {
-                toUser: msg.xml.FromUserName[0],
-                fromUser: msg.xml.ToUserName[0],
-                type: 'text',
-                time: Date.now(),
-                content: '你好！'
-            });
         }else {
-            return tmpl(replyTmpl, {
-                toUser: msg.xml.FromUserName[0],
-                fromUser: msg.xml.ToUserName[0],
-                type: 'text',
-                time: Date.now(),
-                content: replyText
-            });
-        }
+            if(msg.xml.Content[0] == "你好"){
+                return tmpl(replyTmpl, {
+                    toUser: msg.xml.FromUserName[0],
+                    fromUser: msg.xml.ToUserName[0],
+                    type: 'text',
+                    time: Date.now(),
+                    content: '你好！'
+                });
+            }else {
+                return tmpl(replyTmpl, {
+                    toUser: msg.xml.FromUserName[0],
+                    fromUser: msg.xml.ToUserName[0],
+                    type: 'text',
+                    time: Date.now(),
+                    content: replyText
+                });
+            }
 
-    }
+        }
 
 }
 function getToken(){

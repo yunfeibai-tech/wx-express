@@ -3,8 +3,8 @@
  * @Date: 2018/8/18 13:38
  * @Description:
  * */
-import sequelize from 'sequelize';
-import dbc from '../config';
+var  sequelize = require('sequelize');
+var dbc = require('../config')
 let db = null;
 exports.getDbCon =function () {
     try {

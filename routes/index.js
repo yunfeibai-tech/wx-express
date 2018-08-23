@@ -1,8 +1,9 @@
-var express = require('express');
+var userModel = require('../model/modalFactory').userModel
+// var express = require('express');
+import  express from 'express'
+import sha1 from 'sha1'
+import config from './config'
 var router = express.Router();
-var request = require('request');
-var sha1 = require('sha1');
-var config = require('./config')
 var replyText = require('../utils/reply').replyText
 var getUserInfo = require('./users').getUserInfo;
 var getToken = require('../utils/reply').getToken;
@@ -25,7 +26,6 @@ router.post('/',function (req,response,next) {
     var postdata = "";
     req.addListener("data",function(postchunk){
         postdata += postchunk;
-
     });
     //获取到了POST数据
     req.addListener("end",function() {
@@ -50,54 +50,12 @@ router.post('/changeKeyWord',function (req,res,next) {
 });
 //获取用户列表
 router.get('/userList',function (req,resUser,next) {
-    var dataList={userList:[]};
     return getToken(config.appID, config.appSecret).then(function(res){
         var token = res;
         return new Promise(function(resolve, reject){
-            request('https://api.weixin.qq.com/cgi-bin/user/get?access_token='+token, function(err, respond, data){
-                var openid =[],hasList= false;
-                if(JSON.parse(data).data){
-                     openid =  JSON.parse(data).data.openid;
-                }
-                openid.forEach(function (obj,index) {
-                    getUserInfo(obj).then(function (userInfo) {
-
-                        if(index == (openid.length-1)){
-                            console.log(openid.length);
-                            dataList.userList.push(userInfo);
-                            setTimeout(function () {
-                                resUser.status(200).json(dataList)
-                            },200)
-                        }else {
-                            dataList.userList.push(userInfo);
-                        }
-                    });
-                });
-                //todo
-                var params ={
-                    "subscribe": 1,
-                    "openid": "o6_bmjrPTlm6_2sgVt7hMZOPfL2M",
-                    "nickname": "Band",
-                    "sex": 1,
-                    "language": "zh_CN",
-                    "city": "广州",
-                    "province": "广东",
-                    "country": "中国",
-                    "headimgurl":"http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/0",
-                    "subscribe_time": 153269495700,
-                    "unionid": " o6_bmasdasdsad6_2sgVt7hMZOPfL",
-                    "groupid": 0,
-                    "tagid_list":[128,2],
-                    "subscribe_scene": "ADD_SCENE_QR_CODE",
-                    "qr_scene": 98765,
-                    "qr_scene_str": ""
-                };
-                // dataList.userList.push(params);
-
-
-
-
-            });
+            userModel.findAll().then(userList =>{
+                resUser.status(200).json(userList)
+            })
         });
     }).catch(function(err){
         console.log(err);
